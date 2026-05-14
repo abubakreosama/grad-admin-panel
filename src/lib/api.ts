@@ -55,14 +55,11 @@ export async function apiMultipart<T>(path: string, formData: FormData, method: 
   return handleResponse<T>(res);
 }
 
-export async function chat<T>(secretKey: string, body: unknown): Promise<T> {
+export async function chat<T>(secretKey: string, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${secretKey}`,
-    },
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, secret_key: secretKey }),
   });
   // /chat does not use the user JWT so we don't auto-redirect on 401.
   if (res.status === 204) return undefined as T;
