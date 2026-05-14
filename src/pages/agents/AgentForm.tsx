@@ -119,6 +119,7 @@ export default function AgentForm() {
     try {
       if (isEdit && agentId) {
         const body: Record<string, unknown> = {
+          agent_id: agentId,
           name: name.trim(),
           description: description.trim() || null,
           prompt: prompt.trim(),
@@ -134,7 +135,6 @@ export default function AgentForm() {
         const created = await api<Agent>('/agents', {
           method: 'POST',
           body: JSON.stringify({
-            agent_id: agentId,
             name: name.trim(),
             description: description.trim() || undefined,
             prompt: prompt.trim(),
