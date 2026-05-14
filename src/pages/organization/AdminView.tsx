@@ -228,7 +228,7 @@ export default function AdminView({ isOwner }: Props) {
                   <td><span className={`role-badge ${ROLE_BADGE[m.role]}`}>{m.role}</span></td>
                   <td>
                     <div className="row-actions">
-                      {(m.role === 'owner' || m.role === 'admin') && (
+                      {m.role === 'member' && (
                         <button
                           className="icon-btn"
                           title="Edit permissions"
