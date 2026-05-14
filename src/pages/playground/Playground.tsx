@@ -110,7 +110,7 @@ export default function Playground() {
     setError(null);
 
     try {
-      const body: Record<string, unknown> = { message: text };
+      const body: Record<string, unknown> = { message: text, agent_id: selectedAgentId };
       if (conversationId) body.conversation_id = conversationId;
 
       const res = await chat<ChatResponse>(secretKey.trim(), body);
