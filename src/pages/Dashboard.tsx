@@ -88,7 +88,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    api<DashboardData>('/dashboard')
+    api<DashboardData>('/analytics/dashboard')
       .then((d) => { if (!cancelled) setData(d); })
       .catch((err) => { if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load dashboard'); });
     return () => { cancelled = true; };
