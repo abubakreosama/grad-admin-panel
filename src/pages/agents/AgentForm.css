@@ -1,0 +1,260 @@
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.form-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Section card */
+.form-section {
+  background: #111127;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e0e0f0;
+}
+
+.section-title svg {
+  color: #8a8aaa;
+}
+
+.section-body {
+  padding: 20px 22px;
+}
+
+/* Form fields */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field:last-child,
+.field-row:last-child .field {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a0a0b8;
+  letter-spacing: 0.5px;
+}
+
+.field-input,
+.field-textarea {
+  background: #1a1a32;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #e0e0f0;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus,
+.field-textarea:focus {
+  outline: none;
+  border-color: rgba(167, 139, 250, 0.45);
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: #4a4a6a;
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Buttons — shared with AgentsList via Modal.css btn classes */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: #ebe6f7;
+  color: #15152a;
+}
+.btn-primary:hover:not(:disabled) { background: #ffffff; }
+
+.btn-secondary {
+  background: transparent;
+  color: #a0a0b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e0e0f0;
+}
+
+.btn-danger {
+  background: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+.btn-danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.15); }
+
+.btn-ghost {
+  background: transparent;
+  color: #a0a0b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.04); }
+
+/* Embedded tables */
+.table-card {
+  background: #0f0f22;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6a6a8a;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.1s;
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.data-table tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #c0c0d8;
+  vertical-align: middle;
+}
+
+.td-name {
+  font-weight: 500;
+  color: #e0e0f0;
+}
+
+.td-desc {
+  color: #8a8aaa;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.status-dot.active     { background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+.status-dot.inactive   { background: #6b7280; }
+.status-dot.pending    { background: #fbbf24; box-shadow: 0 0 5px rgba(251,191,36,0.4); }
+.status-dot.processing { background: #38bdf8; box-shadow: 0 0 5px rgba(56,189,248,0.4); animation: kbPulse 1.2s ease-in-out infinite; }
+.status-dot.failed     { background: #f87171; box-shadow: 0 0 5px rgba(248,113,113,0.4); }
+
+@keyframes kbPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.status-text { font-size: 12px; font-weight: 600; }
+.status-text.active     { color: #22c55e; }
+.status-text.inactive   { color: #6b7280; }
+.status-text.pending    { color: #fbbf24; }
+.status-text.processing { color: #38bdf8; }
+.status-text.failed     { color: #f87171; }
+
+.empty-table {
+  text-align: center;
+  padding: 32px 20px;
+  color: #4a4a6a;
+  font-size: 13px;
+}

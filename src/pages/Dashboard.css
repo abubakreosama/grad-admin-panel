@@ -1,0 +1,74 @@
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #161628;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #8a8aaa;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.chart-card {
+  background: #161628;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e0e0f0;
+  margin: 0 0 24px;
+}
+
+.chart-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.chart-wrap svg {
+  display: block;
+  width: 100%;
+}
+
+.chart-bar {
+  fill: #3b3b5c;
+  rx: 3px;
+  transition: fill 0.15s;
+}
+
+.chart-bar:hover {
+  fill: #5a5a8c;
+}
+
+.chart-label {
+  fill: #6a6a8a;
+  font-size: 11px;
+  font-family: system-ui, sans-serif;
+}
+
+.dashboard-loading {
+  color: #6a6a8a;
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
+}
