@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../lib/api';
+import { api, getUserId } from '../../lib/api';
 import { useAuth, type Member, type OrgRole } from '../../lib/auth';
 import InviteModal from './InviteModal';
 import PermissionsModal, { type MemberPermissionState } from './PermissionsModal';
@@ -139,7 +139,7 @@ export default function AdminView({ isOwner }: Props) {
     }
   }
 
-  const uniqueRoles = new Set(members.map((m) => m.role));
+  const currentUserId = getUserId();
   const pendingInvites = invites.filter((i) => i.status === 'pending');
   const transferCandidates = members.filter((m) => m.role !== 'owner');
 
@@ -184,17 +184,18 @@ export default function AdminView({ isOwner }: Props) {
           </div>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Roles</p>
-          <div className="stat-row">
-            <span className="stat-value">{uniqueRoles.size}</span>
-            <span className="stat-trend neutral">{Array.from(uniqueRoles).join(' · ')}</span>
-          </div>
-        </div>
-        <div className="stat-card">
           <p className="stat-label">Pending Invites</p>
           <div className="stat-row">
             <span className="stat-value">{pendingInvites.length}</span>
             {pendingInvites.length > 0 && <span className="stat-trend warning">Expiring soon</span>}
+          </div>
+        </div>
+        <div className="stat-card" style={{ gridColumn: 'span 2' }}>
+          <p className="stat-label">Your UUID</p>
+          <div className="stat-row">
+            <span style={{ fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 13, color: '#a78bfa', letterSpacing: 0.3 }}>
+              {currentUserId ?? '—'}
+            </span>
           </div>
         </div>
       </div>
@@ -227,16 +228,18 @@ export default function AdminView({ isOwner }: Props) {
                   <td><span className={`role-badge ${ROLE_BADGE[m.role]}`}>{m.role}</span></td>
                   <td>
                     <div className="row-actions">
-                      <button
-                        className="icon-btn"
-                        title="Edit permissions"
-                        onClick={() => setPermsMember(m)}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                          <circle cx="12" cy="11" r="1.5" />
-                        </svg>
-                      </button>
+                      {(m.role === 'owner' || m.role === 'admin') && (
+                        <button
+                          className="icon-btn"
+                          title="Edit permissions"
+                          onClick={() => setPermsMember(m)}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <circle cx="12" cy="11" r="1.5" />
+                          </svg>
+                        </button>
+                      )}
                       {m.role !== 'owner' && (
                         <button
                           className="icon-btn danger"

@@ -34,7 +34,8 @@ function initials(name: string) {
 function formatTimestamp(iso: string): string {
   try {
     const d = new Date(iso);
-    return `${d.toISOString().slice(0, 10)}\n${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   } catch {
     return iso;
   }

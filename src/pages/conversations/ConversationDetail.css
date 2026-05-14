@@ -108,8 +108,24 @@
   border-radius: 8px;
 }
 
-.msg-bubble {
+.msg-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   max-width: 62%;
+}
+
+.msg-time {
+  font-size: 10px;
+  color: #4a4a6a;
+  padding: 0 4px;
+}
+
+.msg-time.user-time {
+  text-align: right;
+}
+
+.msg-bubble {
   padding: 13px 16px;
   border-radius: 14px;
   font-size: 14px;

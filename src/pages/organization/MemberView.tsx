@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../lib/api';
+import { api, getUserId } from '../../lib/api';
 import { useAuth, type OrgRole } from '../../lib/auth';
 import ConfirmModal from './ConfirmModal';
 
@@ -23,6 +23,7 @@ const ROLE_BADGE_CLASS: Record<OrgRole, string> = {
 export default function MemberView() {
   const { org, role, refresh } = useAuth();
   const navigate = useNavigate();
+  const currentUserId = getUserId();
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +74,11 @@ export default function MemberView() {
 
         <p className="info-card-label" style={{ marginTop: 16 }}>Your Role</p>
         <span className={`role-badge ${ROLE_BADGE_CLASS[role]}`}>{role.toUpperCase()}</span>
+
+        <p className="info-card-label" style={{ marginTop: 16 }}>Your UUID</p>
+        <span style={{ fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 13, color: '#a78bfa', letterSpacing: 0.3 }}>
+          {currentUserId ?? '—'}
+        </span>
 
         <div className="info-box" style={{ marginTop: 18 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

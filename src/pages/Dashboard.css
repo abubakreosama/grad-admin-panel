@@ -40,6 +40,18 @@
   margin: 0 0 24px;
 }
 
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .chart-wrap {
   width: 100%;
   overflow: hidden;

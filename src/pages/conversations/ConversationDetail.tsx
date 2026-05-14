@@ -38,7 +38,15 @@ const AGENT_COLOR = '#8b5cf6';
 function formatDateHeader(iso: string): string {
   try {
     const d = new Date(iso);
-    return `${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()} · ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+  } catch { return iso; }
+}
+
+function formatMsgTime(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   } catch { return iso; }
 }
 
@@ -57,9 +65,9 @@ export default function ConversationDetail() {
     (async () => {
       setLoading(true);
       try {
-        // Fetch first page of messages
+        // Fetch first page of messages (API returns asc; we reverse to show newest first)
         const msgs = await api<MessagesResponse>(`/conversations/${conversationId}/messages?limit=${PAGE_SIZE}&offset=0`);
-        setMessages(msgs.items);
+        setMessages([...msgs.items].reverse());
         setTotal(msgs.total);
         setOffset(msgs.items.length);
 
@@ -80,7 +88,7 @@ export default function ConversationDetail() {
     if (!conversationId) return;
     try {
       const next = await api<MessagesResponse>(`/conversations/${conversationId}/messages?limit=${PAGE_SIZE}&offset=${offset}`);
-      setMessages((prev) => [...prev, ...next.items]);
+      setMessages((prev) => [...[...next.items].reverse(), ...prev]);
       setOffset((o) => o + next.items.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load more');
@@ -123,12 +131,6 @@ export default function ConversationDetail() {
           <p style={{ color: '#6a6a8a', textAlign: 'center', padding: 40 }}>No messages in this conversation yet.</p>
         ) : (
           <>
-            {offset < total && (
-              <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                <button className="back-btn" onClick={loadMore}>Load older messages ({total - offset} remaining)</button>
-              </div>
-            )}
-
             {messages.length > 0 && (
               <div className="date-separator">
                 <span>{formatDateHeader(messages[0].created_at)}</span>
@@ -140,7 +142,10 @@ export default function ConversationDetail() {
                 return (
                   <div key={msg.id} className="msg-row user">
                     <div className="msg-avatar" style={{ background: USER_COLOR }}>U</div>
-                    <div className="msg-bubble user">{msg.content}</div>
+                    <div className="msg-col">
+                      <div className="msg-bubble user">{msg.content}</div>
+                      <div className="msg-time user-time">{formatMsgTime(msg.created_at)}</div>
+                    </div>
                   </div>
                 );
               }
@@ -149,10 +154,19 @@ export default function ConversationDetail() {
                   <div className="msg-avatar agent-shape" style={{ background: AGENT_COLOR }}>
                     {meta ? meta.agent_name.slice(0, 2).toUpperCase() : 'AI'}
                   </div>
-                  <div className="msg-bubble agent">{msg.content}</div>
+                  <div className="msg-col">
+                    <div className="msg-bubble agent">{msg.content}</div>
+                    <div className="msg-time">{formatMsgTime(msg.created_at)}</div>
+                  </div>
                 </div>
               );
             })}
+
+            {offset < total && (
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                <button className="back-btn" onClick={loadMore}>Load older messages ({total - offset} remaining)</button>
+              </div>
+            )}
           </>
         )}
       </div>

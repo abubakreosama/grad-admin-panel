@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { api, apiMultipart } from '../../lib/api';
 import KbModal, { type KB } from '../../components/KbModal';
 import ToolModal, { type Tool, type ToolData } from '../../components/ToolModal';
@@ -17,30 +17,6 @@ type Agent = {
   created_at: string;
   updated_at: string;
 };
-
-type ConversationItem = {
-  id: string;
-  agent_id: string;
-  agent_name: string;
-  external_user_id: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-type ConversationsListResponse = {
-  total: number;
-  items: ConversationItem[];
-};
-
-function relativeTime(iso: string): string {
-  try {
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return new Date(iso).toLocaleDateString();
-  } catch { return iso; }
-}
 
 const KB_STATUS_CLASS: Record<string, string> = {
   pending:    'pending',
@@ -69,8 +45,6 @@ export default function AgentForm() {
   // Related data
   const [kbs, setKbs] = useState<KB[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
-  const [conversations, setConversations] = useState<ConversationItem[]>([]);
-  const [totalConversations, setTotalConversations] = useState(0);
 
   // Modals
   const [kbModal, setKbModal] = useState<{ open: boolean; kb: KB | null }>({ open: false, kb: null });
@@ -82,11 +56,10 @@ export default function AgentForm() {
     (async () => {
       setLoading(true);
       try {
-        const [a, kbList, toolList, convoList] = await Promise.all([
+        const [a, kbList, toolList] = await Promise.all([
           api<Agent>(`/agents/${agentId}`),
           api<KB[]>(`/agents/${agentId}/knowledgebase`).catch(() => []),
           api<Tool[]>(`/agents/${agentId}/tools`).catch(() => []),
-          api<ConversationsListResponse>(`/conversations?agent_id=${agentId}&limit=5`).catch(() => ({ total: 0, items: [] as ConversationItem[] })),
         ]);
         setName(a.name);
         setDescription(a.description ?? '');
@@ -94,8 +67,6 @@ export default function AgentForm() {
         setIsActive(a.is_active);
         setKbs(kbList);
         setTools(toolList);
-        setConversations(convoList.items);
-        setTotalConversations(convoList.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load agent');
       } finally {
@@ -436,49 +407,6 @@ export default function AgentForm() {
           </div>
         </div>
 
-        {/* Conversations (only in edit mode) */}
-        {isEdit && (
-          <div className="form-section">
-            <div className="section-header">
-              <span className="section-title"><ChatIcon /> Recent Conversations</span>
-              {totalConversations > 5 && (
-                <Link to={`/conversations`} className="btn btn-secondary">
-                  View all ({totalConversations})
-                </Link>
-              )}
-            </div>
-            <div className="section-body">
-              <div className="table-card">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>External User</th>
-                      <th>Started</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {conversations.length === 0 ? (
-                      <tr><td colSpan={4} className="empty-table">No conversations for this agent yet.</td></tr>
-                    ) : conversations.map((c) => (
-                      <tr key={c.id}>
-                        <td><span style={{ fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 12, color: '#8a8aaa' }}>#{c.id.slice(0, 8)}</span></td>
-                        <td>{c.external_user_id ?? '—'}</td>
-                        <td className="td-desc">{relativeTime(c.created_at)}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                            <Link to={`/conversations/${c.id}`} className="btn btn-ghost">View</Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Modals */}
@@ -537,10 +465,3 @@ function ToolsIcon() {
   );
 }
 
-function ChatIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7l-4 3V5a1 1 0 0 1 1-1z" />
-    </svg>
-  );
-}

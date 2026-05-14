@@ -4,9 +4,7 @@ import Modal from './Modal';
 export type ToolData = {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  headers: Record<string, string>;
   parameters: Array<{ name: string; type: string; description: string; required: boolean }>;
-  authentication?: string;
 };
 
 export type Tool = {
@@ -24,13 +22,11 @@ export type Tool = {
 const TOOL_TYPES = ['http', 'web_search', 'python', 'email', 'api', 'rag', 'custom'];
 
 const DEFAULT_DATA = `{
-  "url": "https://api.example.com/search",
+  "url": "https://api.example.com/endpoint",
   "method": "GET",
-  "headers": {},
   "parameters": [
     { "name": "q", "type": "string", "description": "Search query", "required": true }
-  ],
-  "authentication": ""
+  ]
 }`;
 
 type Props = {
@@ -149,7 +145,7 @@ export default function ToolModal({ tool, onClose, onSave }: Props) {
           spellCheck={false}
         />
         <p style={{ fontSize: 11, color: '#6a6a8a', margin: '6px 0 0' }}>
-          Expected shape: <code style={{ color: '#a78bfa' }}>{'{ url, method, headers, parameters, authentication? }'}</code>
+          Expected shape: <code style={{ color: '#a78bfa' }}>{'{ url, method, parameters: [{ name, type, description, required }] }'}</code>
         </p>
       </div>
     </Modal>
