@@ -44,11 +44,12 @@ function BarChart({
 
   const maxVal  = Math.max(...bars, 1);
   const VIEW_W  = 600;
-  const CHART_H = 120;
-  const AXIS_H  = 24;
-  const TOTAL_H = CHART_H + AXIS_H;
-  const GAP     = 5;
-  const barW    = Math.max(4, Math.floor((VIEW_W - GAP * (count - 1)) / count));
+  const TOP_PAD = 14;
+  const CHART_H = 70;
+  const AXIS_H  = 22;
+  const TOTAL_H = TOP_PAD + CHART_H + AXIS_H;
+  const GAP     = 7;
+  const barW    = Math.max(3, Math.floor((VIEW_W - GAP * (count - 1)) / count));
   const svgW    = count * barW + (count - 1) * GAP;
 
   function handleBarEnter(e: React.MouseEvent<SVGRectElement>, i: number) {
@@ -76,9 +77,9 @@ function BarChart({
         {bars.map((val, i) => {
           const barH = val === 0
             ? 3
-            : Math.max(6, Math.round((val / maxVal) * CHART_H));
+            : Math.max(5, Math.round((val / maxVal) * CHART_H));
           const x = i * (barW + GAP);
-          const y = CHART_H - barH;
+          const y = TOP_PAD + CHART_H - barH;
           return (
             <rect
               key={i}
@@ -101,7 +102,7 @@ function BarChart({
             <text
               key={index}
               x={x}
-              y={CHART_H + 17}
+              y={TOP_PAD + CHART_H + 16}
               textAnchor={
                 index === 0 ? 'start'
                 : index === count - 1 ? 'end'
