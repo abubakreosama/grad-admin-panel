@@ -46,8 +46,7 @@
 
 .bar-tooltip {
   position: absolute;
-  transform: translate(-50%, -100%);
-  margin-top: -10px;
+  transform: translate(-50%, calc(-100% - 8px));
   background: #1e1e3a;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
@@ -73,13 +72,15 @@
 }
 
 .chart-wrap {
+  position: relative;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .chart-wrap svg {
   display: block;
   width: 100%;
+  overflow: visible;
 }
 
 .chart-bar {

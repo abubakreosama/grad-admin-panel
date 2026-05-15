@@ -44,7 +44,7 @@ function BarChart({
 
   const maxVal  = Math.max(...bars, 1);
   const VIEW_W  = 600;
-  const CHART_H = 200;
+  const CHART_H = 120;
   const AXIS_H  = 24;
   const TOTAL_H = CHART_H + AXIS_H;
   const GAP     = 5;
@@ -55,10 +55,13 @@ function BarChart({
     const wrapRect = wrapRef.current?.getBoundingClientRect();
     const barRect  = e.currentTarget.getBoundingClientRect();
     if (!wrapRect) return;
+    const rawX = barRect.left + barRect.width / 2 - wrapRect.left;
+    // Clamp so the tooltip (≈80px wide) never overflows either edge of the wrapper
+    const x = Math.max(44, Math.min(wrapRect.width - 44, rawX));
     setTooltip({
       label: barLabels[i],
       count: bars[i],
-      x: barRect.left + barRect.width / 2 - wrapRect.left,
+      x,
       y: barRect.top - wrapRect.top,
     });
   }
