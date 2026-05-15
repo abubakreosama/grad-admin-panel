@@ -40,16 +40,36 @@
   margin: 0 0 24px;
 }
 
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.chart-card + .chart-card {
+  margin-top: 16px;
 }
 
-@media (max-width: 860px) {
-  .charts-row {
-    grid-template-columns: 1fr;
-  }
+.bar-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+  background: #1e1e3a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 7px 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 20;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.bar-tooltip-label {
+  font-size: 11px;
+  color: #8a8aaa;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.bar-tooltip-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e0e0f0;
 }
 
 .chart-wrap {

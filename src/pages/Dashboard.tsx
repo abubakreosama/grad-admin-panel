@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
 import './Dashboard.css';
 
-type DayPoint = { date: string; count: number };
+type DayPoint  = { date: string; count: number };
 type HourPoint = { hour: number; count: number };
 
 type DashboardData = {
@@ -15,75 +15,120 @@ type DashboardData = {
 };
 
 function formatNum(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
   return n.toString();
 }
 
+type AxisLabel  = { index: number; label: string };
+type TooltipState = { label: string; count: number; x: number; y: number } | null;
+
 function BarChart({
   bars,
-  labels,
-  color = '#7c3aed',
-  emptyText = 'No data',
+  barLabels,
+  axisLabels,
+  emptyText = 'No data yet.',
 }: {
   bars: number[];
-  labels: string[];
-  color?: string;
+  barLabels: string[];
+  axisLabels: AxisLabel[];
   emptyText?: string;
 }) {
-  const maxVal = Math.max(...bars, 1);
-  const count = bars.length;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [tooltip, setTooltip] = useState<TooltipState>(null);
 
+  const count = bars.length;
   if (count === 0) {
-    return <p style={{ color: '#6a6a8a', fontSize: 13, margin: '24px 0' }}>{emptyText}</p>;
+    return <p style={{ color: '#6a6a8a', fontSize: 13, margin: '32px 0 8px' }}>{emptyText}</p>;
   }
 
-  const chartH = 160;
-  const labelH = 20;
-  const totalH = chartH + labelH;
-  const gap = 2;
-  const barW = Math.max(4, Math.floor((600 - gap * count) / count));
-  const svgW = count * (barW + gap);
+  const maxVal  = Math.max(...bars, 1);
+  const VIEW_W  = 600;
+  const CHART_H = 200;
+  const AXIS_H  = 24;
+  const TOTAL_H = CHART_H + AXIS_H;
+  const GAP     = 5;
+  const barW    = Math.max(4, Math.floor((VIEW_W - GAP * (count - 1)) / count));
+  const svgW    = count * barW + (count - 1) * GAP;
+
+  function handleBarEnter(e: React.MouseEvent<SVGRectElement>, i: number) {
+    const wrapRect = wrapRef.current?.getBoundingClientRect();
+    const barRect  = e.currentTarget.getBoundingClientRect();
+    if (!wrapRect) return;
+    setTooltip({
+      label: barLabels[i],
+      count: bars[i],
+      x: barRect.left + barRect.width / 2 - wrapRect.left,
+      y: barRect.top - wrapRect.top,
+    });
+  }
 
   return (
-    <div className="chart-wrap">
-      <svg viewBox={`0 0 ${svgW} ${totalH}`} style={{ width: '100%', height: totalH }}>
+    <div ref={wrapRef} className="chart-wrap">
+      <svg
+        viewBox={`0 0 ${svgW} ${TOTAL_H}`}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        preserveAspectRatio="none"
+      >
         {bars.map((val, i) => {
-          const barH = val === 0 ? 2 : Math.max(4, Math.round((val / maxVal) * chartH));
-          const x = i * (barW + gap);
-          const y = chartH - barH;
-          const isHighlighted = val === maxVal && maxVal > 0;
+          const barH = val === 0
+            ? 3
+            : Math.max(6, Math.round((val / maxVal) * CHART_H));
+          const x = i * (barW + GAP);
+          const y = CHART_H - barH;
           return (
-            <g key={i}>
-              <rect
-                x={x}
-                y={y}
-                width={barW}
-                height={barH}
-                rx="3"
-                fill={isHighlighted ? color : `${color}66`}
-              />
-              {(count <= 31) && (
-                <text
-                  x={x + barW / 2}
-                  y={chartH + 15}
-                  textAnchor="middle"
-                  fontSize={count > 24 ? 8 : 10}
-                  fill="#6a6a8a"
-                  fontFamily="system-ui, sans-serif"
-                >
-                  {labels[i]}
-                </text>
-              )}
-            </g>
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width={barW}
+              height={barH}
+              rx="4"
+              fill={tooltip?.label === barLabels[i] ? '#5a5a8c' : '#3b3b5c'}
+              style={{ cursor: 'pointer', transition: 'fill 0.1s' }}
+              onMouseEnter={(e) => handleBarEnter(e, i)}
+              onMouseLeave={() => setTooltip(null)}
+            />
+          );
+        })}
+
+        {axisLabels.map(({ index, label }) => {
+          const x = index * (barW + GAP) + barW / 2;
+          return (
+            <text
+              key={index}
+              x={x}
+              y={CHART_H + 17}
+              textAnchor={
+                index === 0 ? 'start'
+                : index === count - 1 ? 'end'
+                : 'middle'
+              }
+              fontSize="11"
+              fill="#6a6a8a"
+              fontFamily="system-ui, sans-serif"
+            >
+              {label}
+            </text>
           );
         })}
       </svg>
+
+      {tooltip && (
+        <div
+          className="bar-tooltip"
+          style={{ left: tooltip.x, top: tooltip.y }}
+        >
+          <div className="bar-tooltip-label">{tooltip.label}</div>
+          <div className="bar-tooltip-count">{tooltip.count}</div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null);
+  const [data, setData]   = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -95,19 +140,44 @@ export default function Dashboard() {
   }, []);
 
   const cards = [
-    { label: 'Active Agents',     value: data ? formatNum(data.active_agents) : '…' },
-    { label: 'Total Agents',      value: data ? formatNum(data.total_agents) : '…' },
-    { label: 'Knowledge Bases',   value: data ? formatNum(data.total_knowledge_bases) : '…' },
-    { label: 'Total Conversations', value: data ? formatNum(data.total_conversations) : '…' },
+    { label: 'Active Agents',       value: data ? formatNum(data.active_agents)        : '…' },
+    { label: 'Total Agents',        value: data ? formatNum(data.total_agents)          : '…' },
+    { label: 'Knowledge Bases',     value: data ? formatNum(data.total_knowledge_bases) : '…' },
+    { label: 'Total Conversations', value: data ? formatNum(data.total_conversations)   : '…' },
   ];
 
-  const dayBars    = data?.conversations_by_day.map((d) => d.count) ?? [];
-  const dayLabels  = data?.conversations_by_day.map((d) => d.date.slice(8)) ?? [];  // day number
-  const hourBars   = data?.messages_by_hour.map((h) => h.count) ?? [];
-  const hourLabels = data?.messages_by_hour.map((h) => {
-    const h12 = h.hour % 12 || 12;
-    return `${h12}${h.hour < 12 ? 'a' : 'p'}`;
-  }) ?? [];
+  // ── Conversations by day ─────────────────────────────────────────────
+  const dayPoints  = data?.conversations_by_day ?? [];
+  const dayBars    = dayPoints.map((d) => d.count);
+  const dayLabels  = dayPoints.map((d) => d.date.slice(8));       // "01"–"31"
+  const dayCount   = dayBars.length;
+  const dayAxisLabels: AxisLabel[] = dayCount === 0 ? [] : (() => {
+    const positions = new Set([
+      0,
+      Math.floor(dayCount / 4),
+      Math.floor(dayCount / 2),
+      Math.floor((3 * dayCount) / 4),
+      dayCount - 1,
+    ]);
+    return Array.from(positions)
+      .sort((a, b) => a - b)
+      .map((i) => ({ index: i, label: dayLabels[i] }));
+  })();
+
+  // ── Messages by hour ─────────────────────────────────────────────────
+  const hourPoints = data?.messages_by_hour ?? [];
+  const hourBars   = hourPoints.map((h) => h.count);
+  const hourLabels = hourPoints.map((h) => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(h.hour)}:00`;
+  });
+  const hourAxisLabels: AxisLabel[] = [
+    { index: 0,  label: '00:00' },
+    { index: 6,  label: '06:00' },
+    { index: 12, label: '12:00' },
+    { index: 18, label: '18:00' },
+    { index: 23, label: '23:59' },
+  ].filter(({ index }) => index < hourBars.length);
 
   return (
     <>
@@ -126,34 +196,32 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="charts-row">
-        <div className="chart-card">
-          <p className="chart-title">Conversations — This Month</p>
-          {!data ? (
-            <p className="dashboard-loading">Loading…</p>
-          ) : (
-            <BarChart
-              bars={dayBars}
-              labels={dayLabels}
-              color="#7c3aed"
-              emptyText="No conversations this month yet."
-            />
-          )}
-        </div>
+      <div className="chart-card">
+        <p className="chart-title">Conversations — This Month</p>
+        {!data ? (
+          <p className="dashboard-loading">Loading…</p>
+        ) : (
+          <BarChart
+            bars={dayBars}
+            barLabels={dayLabels}
+            axisLabels={dayAxisLabels}
+            emptyText="No conversations this month yet."
+          />
+        )}
+      </div>
 
-        <div className="chart-card">
-          <p className="chart-title">Messages Today — By Hour</p>
-          {!data ? (
-            <p className="dashboard-loading">Loading…</p>
-          ) : (
-            <BarChart
-              bars={hourBars}
-              labels={hourLabels}
-              color="#06b6d4"
-              emptyText="No messages today yet."
-            />
-          )}
-        </div>
+      <div className="chart-card">
+        <p className="chart-title">Messages Statistics</p>
+        {!data ? (
+          <p className="dashboard-loading">Loading…</p>
+        ) : (
+          <BarChart
+            bars={hourBars}
+            barLabels={hourLabels}
+            axisLabels={hourAxisLabels}
+            emptyText="No messages today yet."
+          />
+        )}
       </div>
     </>
   );
